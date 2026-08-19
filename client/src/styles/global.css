@@ -507,6 +507,61 @@ textarea:focus {
 
 .chip-more {
   background: #d2e3fc;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.modal-card {
+  width: min(520px, 100%);
+  max-height: min(70vh, 640px);
+  overflow: auto;
+  background: #fff;
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.2);
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.modal-head h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+
+.recipient-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recipient-list-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.92rem;
 }
 
 .bulk-area {

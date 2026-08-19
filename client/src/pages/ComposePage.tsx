@@ -148,6 +148,7 @@ export const ComposePage = () => {
     setRecipients(nextRecipients);
     setDraft("");
     setIsSending(true);
+    setNotice("Sending… The first request can take up to a minute if Render was asleep. Test connection is optional.");
     setProgress({ done: 0, total: nextRecipients.length });
     try {
       const result = await sendBulkMail({
