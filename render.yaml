@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: dispatch-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build -w server
+    startCommand: npm run start -w server
+    envVars:
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: SEND_CONCURRENCY
+        value: "1000"

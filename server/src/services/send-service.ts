@@ -1,0 +1,86 @@
+import { env } from "../config/env.js";
+import type { SendSummary, SmtpConfig } from "../domain/types.js";
+import { HttpError } from "../utils/http-error.js";
+import { isValidEmail, parseRecipientList } from "../utils/email.js";
+import { buildFormalEmailHtml, buildFormalEmailText } from "../utils/letter-template.js";
+import { mailerService } from "./mailer-service.js";
+
+type LetterInput = {
+  body: string;
+};
+
+export class SendService {
+  async sendBulk(options: {
+    smtp: SmtpConfig;
+    subject: string;
+    letter: LetterInput;
+    recipients: string[];
+  }): Promise<SendSummary> {
+    const recipients = parseRecipientList(options.recipients);
+    const invalid = recipients.filter((email) => !isValidEmail(email));
+    if (invalid.length > 0) {
+      throw new HttpError(400, `Invalid recipient addresses: ${invalid.slice(0, 5).join(", ")}`);
+    }
+    if (recipients.length === 0) {
+      throw new HttpError(400, "Add at least one recipient.");
+    }
+
+    const letter = {
+      body: options.letter.body,
+      senderName: options.smtp.fromName,
+      senderEmail: options.smtp.fromEmail,
+    };
+    const html = buildFormalEmailHtml(letter);
+    const text = buildFormalEmailText(letter);
+
+    const summary: SendSummary = {
+      sentCount: 0,
+      failedCount: 0,
+      failures: [],
+    };
+    const transport = mailerService.createTransport(options.smtp);
+    try {
+      const groups = chunk(recipients, env.SEND_CONCURRENCY);
+      for (const group of groups) {
+        const results = await Promise.all(
+          group.map((email) =>
+            mailerService.sendOne(
+              options.smtp,
+              {
+                to: email,
+                subject: options.subject,
+                html,
+                text,
+              },
+              transport,
+            ),
+          ),
+        );
+        for (const result of results) {
+          if (result.success) {
+            summary.sentCount += 1;
+          } else {
+            summary.failedCount += 1;
+            summary.failures.push({
+              email: result.email,
+              error: result.error ?? "Send failed",
+            });
+          }
+        }
+      }
+    } finally {
+      transport.close();
+    }
+    return summary;
+  }
+}
+
+const chunk = <T>(items: T[], size: number): T[][] => {
+  const groups: T[][] = [];
+  for (let index = 0; index < items.length; index += size) {
+    groups.push(items.slice(index, index + size));
+  }
+  return groups;
+};
+
+export const sendService = new SendService();
