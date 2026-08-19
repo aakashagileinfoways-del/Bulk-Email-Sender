@@ -1,7 +1,7 @@
 import type { ApiError } from "../types/models";
 
 const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
-const REQUEST_TIMEOUT_MS = 55_000;
+const REQUEST_TIMEOUT_MS = 180_000;
 
 const parseError = async (response: Response): Promise<string> => {
   try {

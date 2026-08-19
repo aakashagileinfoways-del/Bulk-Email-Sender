@@ -100,6 +100,10 @@ export const ProvidersPage = () => {
             Username and password are encrypted in the browser before the request is sent. They are not stored
             on the server. After you send, they are dropped from memory on the API.
           </p>
+          <p className="hint">
+            Render&apos;s free API cannot talk to Gmail on ports 587 or 465. Test connection will time out until
+            you upgrade that Render service to paid, or run the API locally with npm run dev.
+          </p>
         </div>
       </div>
       <StatusBanner tone="error" message={error} />

@@ -1,4 +1,3 @@
-import { env } from "../config/env.js";
 import type { SendSummary, SmtpConfig } from "../domain/types.js";
 import { HttpError } from "../utils/http-error.js";
 import { isValidEmail, parseRecipientList } from "../utils/email.js";
@@ -40,33 +39,26 @@ export class SendService {
     };
     const transport = mailerService.createTransport(options.smtp);
     try {
-      const groups = chunk(recipients, env.SEND_CONCURRENCY);
-      for (const group of groups) {
-        const results = await Promise.all(
-          group.map((email) =>
-            mailerService.sendOne(
-              options.smtp,
-              {
-                to: email,
-                subject: options.subject,
-                html,
-                text,
-              },
-              transport,
-            ),
-          ),
+      for (const email of recipients) {
+        const result = await mailerService.sendOne(
+          options.smtp,
+          {
+            to: email,
+            subject: options.subject,
+            html,
+            text,
+          },
+          transport,
         );
-        for (const result of results) {
-          if (result.success) {
-            summary.sentCount += 1;
-          } else {
-            summary.failedCount += 1;
-            summary.failures.push({
-              email: result.email,
-              error: result.error ?? "Send failed",
-            });
-          }
+        if (result.success) {
+          summary.sentCount += 1;
+          continue;
         }
+        summary.failedCount += 1;
+        summary.failures.push({
+          email: result.email,
+          error: result.error ?? "Send failed",
+        });
       }
     } finally {
       transport.close();
@@ -74,13 +66,5 @@ export class SendService {
     return summary;
   }
 }
-
-const chunk = <T>(items: T[], size: number): T[][] => {
-  const groups: T[][] = [];
-  for (let index = 0; index < items.length; index += size) {
-    groups.push(items.slice(index, index + size));
-  }
-  return groups;
-};
 
 export const sendService = new SendService();
