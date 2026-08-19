@@ -9,4 +9,4 @@ services:
       - key: CLIENT_ORIGIN
         sync: false
       - key: SEND_CONCURRENCY
-        value: "1000"
+        value: "10"
