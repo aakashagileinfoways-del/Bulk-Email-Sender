@@ -3,7 +3,7 @@ import { StatusBanner } from "../components/ui/StatusBanner";
 import { useSmtpSession } from "../context/smtp-session-context";
 import { mailApi } from "../services/mail-api";
 import type { SmtpSession } from "../types/models";
-import { toSmtpPayload } from "../utils/smtp";
+import { smtpFingerprint, toSmtpPayload } from "../utils/smtp";
 
 const emptyForm: SmtpSession = {
   name: "",
@@ -22,6 +22,7 @@ export const ProvidersPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isTesting, setIsTesting] = useState(false);
+  const [verifiedFingerprint, setVerifiedFingerprint] = useState<string | null>(null);
 
   const updateField = (field: keyof SmtpSession) => (event: ChangeEvent<HTMLInputElement>) => {
     const value = field === "port" ? Number(event.target.value) : event.target.value;
@@ -32,21 +33,40 @@ export const ProvidersPage = () => {
     setForm((current) => ({ ...current, secure: event.target.checked }));
   };
 
+  const resolveDraft = (): SmtpSession | null => {
+    const canReusePassword = Boolean(
+      session &&
+        form.host === session.host &&
+        form.port === session.port &&
+        form.secure === session.secure &&
+        form.username === session.username &&
+        form.fromEmail === session.fromEmail,
+    );
+    const password = form.password || (canReusePassword && session ? session.password : "");
+    if (!form.host || !form.username || !form.fromEmail || !form.fromName || !password) {
+      return null;
+    }
+    return { ...form, password };
+  };
+
+  const draft = resolveDraft();
+  const canUseAccount = Boolean(draft && verifiedFingerprint === smtpFingerprint(draft));
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
-    const password = form.password || session?.password || "";
-    if (!password) {
-      setError("SMTP password is required.");
+    if (!draft || !canUseAccount) {
+      setError("Test the connection first. Use this account stays off until the test succeeds.");
       return;
     }
-    setSession({ ...form, password });
+    setSession(draft);
     setForm((current) => ({ ...current, password: "" }));
-    setNotice("SMTP details are held in this browser tab only. The password is not stored on the server.");
+    setNotice("SMTP is ready to send. Details stay in this browser tab only.");
   };
 
   const handleClear = () => {
     setForm(emptyForm);
+    setVerifiedFingerprint(null);
     clearSession();
     setNotice("Session SMTP details were removed from memory.");
   };
@@ -54,15 +74,16 @@ export const ProvidersPage = () => {
   const handleTest = async () => {
     setError(null);
     setNotice(null);
-    const smtp = session && !form.password ? session : form;
-    if (!smtp.host || !smtp.password) {
-      setError("Enter the SMTP password to test the connection.");
+    setVerifiedFingerprint(null);
+    if (!draft) {
+      setError("Fill host, username, password, from name, and from email, then test.");
       return;
     }
     setIsTesting(true);
     try {
-      await mailApi.testSmtp(toSmtpPayload(smtp));
-      setNotice("SMTP connection verified. Password was not saved.");
+      await mailApi.testSmtp(toSmtpPayload(draft));
+      setVerifiedFingerprint(smtpFingerprint(draft));
+      setNotice("Connection works. You can now use this account.");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "SMTP test failed");
     } finally {
@@ -132,16 +153,15 @@ export const ProvidersPage = () => {
             </label>
           </div>
           <p className="hint">
-            Network inspector will show ciphertext for username and password, not the real secret. This tab still
-            keeps the password in memory until you close it or press Forget now. Revoke any app password that was
-            previously sent in plain text.
+            Test connection first. Use this account stays disabled until that test succeeds. If you change any
+            field after a successful test, you must test again.
           </p>
           <div className="actions">
-            <button className="btn btn-primary" type="submit">
-              Use this account
-            </button>
             <button className="btn btn-ghost" type="button" onClick={handleTest} disabled={isTesting}>
               {isTesting ? "Testing…" : "Test connection"}
+            </button>
+            <button className="btn btn-primary" type="submit" disabled={!canUseAccount}>
+              Use this account
             </button>
             <button className="btn btn-danger" type="button" onClick={handleClear}>
               Forget now
