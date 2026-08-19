@@ -1,6 +1,7 @@
 import { type ChangeEvent, type FormEvent, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { RecipientChips } from "../components/compose/RecipientChips";
+import { SendProgress } from "../components/compose/SendProgress";
 import { StatusBanner } from "../components/ui/StatusBanner";
 import { useSmtpSession } from "../context/smtp-session-context";
 import { sendBulkMail } from "../services/send-bulk";
@@ -29,7 +30,7 @@ export const ComposePage = () => {
   const [isSending, setIsSending] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
 
-  const fromLine = session ? `${session.fromName} <${session.fromEmail}>` : "Add SMTP to send";
+  const fromLine = session ? session.fromEmail : "Add SMTP to send";
   const canSend =
     Boolean(session) &&
     (recipients.length > 0 || isValidEmail(draft) || extractEmails(bulkText).length > 0) &&
@@ -127,6 +128,7 @@ export const ComposePage = () => {
 
   const handleProgress = (done: number, total: number) => {
     setProgress({ done, total });
+    setNotice(`Sending ${done} of ${total}…`);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -148,7 +150,7 @@ export const ComposePage = () => {
     setRecipients(nextRecipients);
     setDraft("");
     setIsSending(true);
-    setNotice("Sending… The first request can take up to a minute if Render was asleep. Test connection is optional.");
+    setNotice(`Sending 0 of ${nextRecipients.length}…`);
     setProgress({ done: 0, total: nextRecipients.length });
     try {
       const result = await sendBulkMail({
@@ -199,13 +201,7 @@ export const ComposePage = () => {
             </Link>
           )}
         </div>
-        {isSending && (
-          <div className="send-progress">
-            <div className="progress-bar light">
-              <span style={{ width: `${progress.total ? Math.round((progress.done / progress.total) * 100) : 0}%` }} />
-            </div>
-          </div>
-        )}
+        {isSending && <SendProgress done={progress.done} total={progress.total} />}
         <div className="mail-row">
           <span className="mail-label">From</span>
           <div className="mail-from">
@@ -252,13 +248,6 @@ export const ComposePage = () => {
         </div>
         <div className="mail-body-wrap">
           <textarea className="mail-body" value={body} onChange={handleBodyChange} required />
-          {session && (
-            <div className="mail-signature">
-              {session.fromName}
-              {"\n"}
-              {session.fromEmail}
-            </div>
-          )}
         </div>
       </form>
       {summary && (

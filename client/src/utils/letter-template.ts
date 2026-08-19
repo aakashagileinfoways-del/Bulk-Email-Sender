@@ -1,9 +1,3 @@
-export type FormalLetter = {
-  body: string;
-  senderName: string;
-  senderEmail: string;
-};
-
 export const escapeHtml = (value: string): string =>
   value
     .replaceAll("&", "&amp;")
@@ -23,10 +17,10 @@ const toParagraphHtml = (body: string): string =>
     )
     .join("");
 
-export const buildFormalEmailHtml = (letter: FormalLetter): string => {
-  const senderName = escapeHtml(letter.senderName.trim());
-  const senderEmail = escapeHtml(letter.senderEmail.trim());
-  const paragraphs = toParagraphHtml(letter.body);
+export const buildFormalEmailText = (body: string): string => body.trim();
+
+export const buildFormalEmailHtml = (body: string): string => {
+  const paragraphs = toParagraphHtml(body);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -39,10 +33,6 @@ export const buildFormalEmailHtml = (letter: FormalLetter): string => {
       <tr>
         <td style="padding:8px 4px 16px;max-width:640px;">
           ${paragraphs}
-          <div style="margin-top:28px;padding-top:16px;border-top:1px solid #e5e5e5;font-family:'Segoe UI',Arial,sans-serif;">
-            <p style="margin:0;font-size:15px;line-height:1.5;color:#1f1f1f;font-weight:600;">${senderName}</p>
-            <p style="margin:4px 0 0;font-size:13px;line-height:1.4;color:#5f5f5f;">${senderEmail}</p>
-          </div>
         </td>
       </tr>
     </table>

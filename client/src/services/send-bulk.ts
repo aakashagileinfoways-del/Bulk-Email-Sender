@@ -23,6 +23,7 @@ export const sendBulkMail = async (input: BulkSendInput): Promise<SendSummary> =
   let done = 0;
 
   for (const group of groups) {
+    input.onProgress(done, total);
     const result = await mailApi.send({
       smtp: input.smtp,
       subject: input.subject,

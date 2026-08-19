@@ -64,7 +64,7 @@ export class MailerService {
   ): Promise<SendResult> {
     try {
       await transport.sendMail({
-        from: `"${smtp.fromName}" <${smtp.fromEmail}>`,
+        from: smtp.fromEmail,
         to: options.to,
         subject: options.subject,
         text: options.text,

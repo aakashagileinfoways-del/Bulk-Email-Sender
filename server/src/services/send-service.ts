@@ -24,13 +24,8 @@ export class SendService {
       throw new HttpError(400, "Add at least one recipient.");
     }
 
-    const letter = {
-      body: options.letter.body,
-      senderName: options.smtp.fromName,
-      senderEmail: options.smtp.fromEmail,
-    };
-    const html = buildFormalEmailHtml(letter);
-    const text = buildFormalEmailText(letter);
+    const html = buildFormalEmailHtml(options.letter.body);
+    const text = buildFormalEmailText(options.letter.body);
 
     const summary: SendSummary = {
       sentCount: 0,

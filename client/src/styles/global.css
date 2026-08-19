@@ -578,8 +578,15 @@ textarea:focus {
 }
 
 .send-progress {
-  padding: 8px 16px 0;
+  padding: 10px 16px 12px;
   background: #f2f6fc;
+}
+
+.send-progress-label {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
 }
 
 .progress-bar.light {

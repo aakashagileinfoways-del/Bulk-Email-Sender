@@ -2,7 +2,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const EMAIL_FIND = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 
 export const MAX_RECIPIENTS = 2000;
-export const SEND_CHUNK_SIZE = 50;
+export const SEND_CHUNK_SIZE = 1;
 
 export const isValidEmail = (value: string): boolean => EMAIL_PATTERN.test(value.trim().toLowerCase());
 
