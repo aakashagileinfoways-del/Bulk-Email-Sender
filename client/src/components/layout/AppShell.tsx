@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { BrandMark } from "./BrandMark";
 
 const navClassName = ({ isActive }: { isActive: boolean }) =>
   isActive ? "nav-link active" : "nav-link";
@@ -7,7 +8,7 @@ export const AppShell = () => (
   <div className="app-shell">
     <aside className="sidebar">
       <div className="brand">
-        <div className="brand-mark" />
+        <BrandMark />
         <div>
           <h1>Dispatch</h1>
           <p>Bulk email</p>

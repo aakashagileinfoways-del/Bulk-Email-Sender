@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Dispatch">
+  <defs>
+    <linearGradient id="dispatch-bg" x1="8" y1="4" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0b57d0" />
+      <stop offset="1" stop-color="#0842a0" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#dispatch-bg)" />
+  <path
+    fill="#fff"
+    d="M12 22.5c0-2.5 2-4.5 4.5-4.5h31c2.5 0 4.5 2 4.5 4.5v19c0 2.5-2 4.5-4.5 4.5h-31c-2.5 0-4.5-2-4.5-4.5v-19Zm5.2-1.1 14.3 10.2c.9.6 2.1.6 3 0L49 21.4c.4-.3.2-.9-.3-.9H17.5c-.5 0-.7.6-.3.9Z"
+  />
+  <path
+    fill="#8ab4f8"
+    d="M38.2 33.2 48 26.4v14.6c0 .9-1 1.4-1.7.8l-8.1-8.6Z"
+  />
+  <path fill="#fbbc04" d="M44.2 18.8 52 28.4l-5.4 1.8-2.4-11.4Z" />
+</svg>
