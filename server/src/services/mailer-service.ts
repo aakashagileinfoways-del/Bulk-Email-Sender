@@ -4,7 +4,7 @@ import { HttpError } from "../utils/http-error.js";
 import { safeErrorMessage } from "../utils/secrets.js";
 
 export const SMTP_BLOCKED_MESSAGE =
-  "Could not reach Gmail SMTP from the API host. Render free web services block outbound ports 25, 465, and 587. Upgrade the Render API to a paid instance, run npm run dev locally, or host the API on a VM/Fly.io that allows SMTP.";
+  "Could not reach the SMTP host from the API. Render free blocks outbound ports 25, 465, and 587 for every provider (Gmail, AWS SES, SendGrid SMTP, etc.). Use npm run dev locally, upgrade Render to paid, or host the API on a VM/Fly.io that allows SMTP.";
 
 const isSmtpUnreachable = (error: unknown): boolean => {
   if (!(error instanceof Error)) {
@@ -76,7 +76,7 @@ export class MailerService {
         email: options.to,
         success: false,
         error: isSmtpUnreachable(error)
-          ? "SMTP is connected, but this message timed out while sending. Retry this address; Gmail often drops several sends at once."
+          ? "SMTP send timed out. If the API is on Render free, ports 465/587 are blocked. Locally, retry one address at a time."
           : safeErrorMessage(error, [smtp.password]),
       };
     }

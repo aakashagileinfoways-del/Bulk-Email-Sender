@@ -101,8 +101,9 @@ export const ProvidersPage = () => {
             on the server. After you send, they are dropped from memory on the API.
           </p>
           <p className="hint">
-            Render&apos;s free API cannot talk to Gmail on ports 587 or 465. Test connection will time out until
-            you upgrade that Render service to paid, or run the API locally with npm run dev.
+            Render free blocks SMTP ports 587 and 465 for every provider, including AWS SES. Test from
+            localhost with npm run dev, or move the API off free Render. For SES use port 587 with TLS
+            unchecked, or port 465 with TLS checked. From email must be a verified SES identity.
           </p>
         </div>
       </div>
